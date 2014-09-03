@@ -1,0 +1,27 @@
+{
+  "name": "livestyle-patcher",
+  "version": "1.0.0",
+  "description": "A LiveStyle client able to perform source diff and patch",
+  "main": "index.js",
+  "scripts": {
+    "test": "./node_modules/.bin/mocha --reporter spec"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:livestyle/patcher.git"
+  },
+  "keywords": [
+    "livestyle",
+    "patch",
+    "diff"
+  ],
+  "author": "Sergey Chikuyonok <serge.che@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "livestyle-client": "git+https://github.com/livestyle/client.git",
+    "livestyle": "git+ssh://git@github.com/sergeche/livestyle-core.git"
+  },
+  "devDependencies": {
+    "mocha": "^1.21.4"
+  }
+}
