@@ -15,15 +15,16 @@ describe('Command Queue', function() {
 			request.push(payload.name);
 			this.emit('message', {data: {
 				commandId: payload.commandId,
+				status: 'ok',
 				data: 'response ' + payload.name
 			}});
 		});
 
 		queue(worker)
-			.add('test1', {foo: 'bar'}, function(data) {
+			.add('test1', {foo: 'bar'}, function(status, data) {
 				response.push(data);
 			})
-			.add('test2', {foo2: 'bar2'}, function(data) {
+			.add('test2', {foo2: 'bar2'}, function(status, data) {
 				response.push(data);
 			});
 
@@ -40,16 +41,17 @@ describe('Command Queue', function() {
 			setTimeout(function() {
 				self.emit('message', {data: {
 					commandId: payload.commandId,
+					status: 'ok',
 					data: 'response ' + payload.name
 				}});
 			}, 10);
 		});
 
 		queue(worker)
-			.add('test1', {foo: 'bar'}, function(data) {
+			.add('test1', {foo: 'bar'}, function(status, data) {
 				flow.push(data);
 			})
-			.add('test2', {foo2: 'bar2'}, function(data) {
+			.add('test2', {foo2: 'bar2'}, function(status, data) {
 				flow.push(data);
 			});
 
@@ -59,37 +61,38 @@ describe('Command Queue', function() {
 		}, 30);
 	});
 
-	it('optimize commands', function() {
+	it('optimize commands', function(done) {
 		var flow = [];
 		var worker = new Worker();
 		worker.on('postMessage', function(payload) {
-			flow.push(payload.name);
+			var flowInput = payload.name;
+			if (payload.name === 'calculate-diff') {
+				flowInput += ' ' + payload.data.uri + ':' + payload.data.content;
+			}
+
+			flow.push(flowInput);
 			var self = this;
 			setTimeout(function() {
-				var resp = 'response ' + payload.name;
-				if (payload.name === 'calculate-diff') {
-					resp += ' ' + payload.uri + ':' + payload.content;
-				}
-
 				self.emit('message', {data: {
 					commandId: payload.commandId,
-					data: resp
+					status: 'ok',
+					data: 'response ' + payload.name
 				}});
 			}, 5);
 		});
 
 		queue(worker)
-			.add('test1', {foo: 'bar'}, function(data) {
+			.add('test1', {foo: 'bar'}, function(status, data) {
 				flow.push(data);
 			})
-			.add('calculate-diff', {uri: 'foo', content: 'a'}, function(data, command) {
+			.add('calculate-diff', {uri: 'foo', content: 'a'}, function(status, data, command) {
 				// should contain data from latter call
 				flow.push(data + ' ' + command.data.uri + ':' + command.data.content);
 			})
-			.add('calculate-diff', {uri: 'bar', content: 'b'}, function(data) {
+			.add('calculate-diff', {uri: 'bar', content: 'b'}, function(status, data, command) {
 				flow.push(data + ' ' + command.data.uri + ':' + command.data.content);
 			})
-			.add('calculate-diff', {uri: 'foo', content: 'c'}, function(data) {
+			.add('calculate-diff', {uri: 'foo', content: 'c'}, function(status, data, command) {
 				// shouldn’t be called at all
 				flow.push(data + ' ' + command.data.uri + ':' + command.data.content);
 			});

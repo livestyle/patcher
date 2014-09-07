@@ -1,12 +1,21 @@
 var EventEmitter = require('events').EventEmitter;
 var util = require('util');
+var path = require('path');
 
 /** 
  * Web Worker shim
  */
-function Worker() {
+function Worker(filename) {
 	EventEmitter.call(this);
-	this.listeners = {};
+
+	if (filename) {
+		var self = this;
+		this._module = require(path.join(__dirname, '../../', filename));
+		this._module.shimPostMessage(function(payload) {
+			self.emit('message', {data: payload});
+		});
+	}
+
 	Worker.emitter.emit('create', this);
 }
 
@@ -23,6 +32,9 @@ Worker.prototype.removeEventListener = function(name, callback) {
 
 Worker.prototype.postMessage = function(data) {
 	Worker.emitter.emit('message', data, this);
+	if (this._module) {
+		this._module(data);
+	}
 	this.emit('postMessage', data);
 };
 
