@@ -12,20 +12,31 @@ if (typeof module === 'object' && typeof define !== 'function') {
 
 define(function(require, exports, module) {
 	var CommandQueue = require('./lib/command-queue');
-	// TODO implement file loader interface in worker
-	var worker = new Worker('./lib/worker.js');
 
+	var currentClient = null;
+	var worker = new Worker('./lib/worker.js');
 	var queue = new CommandQueue(worker);
 
+	worker.addEventListener('message', function(evt) {
+		var payload = evt.data;
+		if (typeof payload === 'string') {
+			payload = JSON.parse(payload);
+		}
+
+		if (payload.name === 'request-files' && currentClient) {
+			currentClient.send(payload.name, payload.data);
+		}
+	});
+
 	var response = {
-		'calculate-diff': function(client, data, command) {
-			client.send('diff', {
+		'calculate-diff': function(data, command) {
+			currentClient.send('diff', {
 				uri: command.data.uri,
 				syntax: command.data.syntax,
 				patches: data
 			});
 		},
-		'apply-patch': function(client, data, command) {
+		'apply-patch': function(data, command) {
 			var resp = {
 				uri: command.data.uri,
 				content: data.content,
@@ -36,9 +47,9 @@ define(function(require, exports, module) {
 				resp.hash = data.hash;
 			}
 
-			client.send('patch', resp);
+			currentClient.send('patch', resp);
 		},
-		'initial-content': function(client, data, command) {}
+		'initial-content': function(data, command) {}
 	};
 
 	/**
@@ -46,26 +57,34 @@ define(function(require, exports, module) {
 	 * @param  {Client} client LiveStyle client instance
 	 */
 	function identify(client) {
-		client.send('patcher-connect');
+		currentClient.send('patcher-connect');
 	}
 
 	return function(client) {
+		currentClient = client;
+
 		Object.keys(response).forEach(function(event) {
 			client.on(event, function(data) {
 				queue.add(event, data, function(status, responseData, command) {
 					if (status !== 'ok') {
 						return client.send('error', responseData);
 					}
-					response[event] && response[event](client, responseData, command);
+					response[event](responseData, command);
 				});
 			});
 		});
 
-		client.on('connect', function() {
-			identify(client);
-		});
+		client
+			.on('connect', identify)
+			.on('files', function(data) {
+				worker.postMessage({
+					name: 'files',
+					data: data
+				});
+			});
+
 		if (client.connected) {
-			identify(client);
+			identify();
 		}
 	};
 });

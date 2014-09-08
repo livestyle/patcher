@@ -3,7 +3,7 @@ var assert = require('assert');
 var patcher = require('../');
 var Client = require('./shim/client');
 
-describe('Patcher', function() {
+describe('Worker', function() {
 	it('identify itself', function() {
 		// disconnected client
 		var client = new Client();
