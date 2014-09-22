@@ -18,7 +18,7 @@ Client.prototype.send = function(name, data) {
 
 Client.prototype.connect = function() {
 	this.connected = true;
-	this.emit('connect');
+	this.emit('open');
 }
 
 module.exports = Client;

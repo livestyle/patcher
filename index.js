@@ -14,20 +14,6 @@ define(function(require, exports, module) {
 	var CommandQueue = require('./lib/command-queue');
 
 	var currentClient = null;
-	var worker = new Worker('./lib/worker.js');
-	var queue = new CommandQueue(worker);
-
-	worker.addEventListener('message', function(evt) {
-		var payload = evt.data;
-		if (typeof payload === 'string') {
-			payload = JSON.parse(payload);
-		}
-
-		if (payload.name === 'request-files' && currentClient) {
-			currentClient.send(payload.name, payload.data);
-		}
-	});
-
 	var response = {
 		'calculate-diff': function(data, command) {
 			currentClient.send('diff', {
@@ -60,8 +46,23 @@ define(function(require, exports, module) {
 		currentClient.send('patcher-connect');
 	}
 
-	return function(client) {
+	return function(client, options) {
+		options = options || {};
 		currentClient = client;
+
+		var worker = new Worker(options.worker || './lib/worker.js');
+		var queue = new CommandQueue(worker);
+
+		worker.addEventListener('message', function(evt) {
+			var payload = evt.data;
+			if (typeof payload === 'string') {
+				payload = JSON.parse(payload);
+			}
+
+			if (payload.name === 'request-files' && currentClient) {
+				currentClient.send(payload.name, payload.data);
+			}
+		});
 
 		Object.keys(response).forEach(function(event) {
 			client.on(event, function(data) {
@@ -75,7 +76,7 @@ define(function(require, exports, module) {
 		});
 
 		client
-			.on('connect', identify)
+			.on('open', identify)
 			.on('files', function(data) {
 				worker.postMessage({
 					name: 'files',
