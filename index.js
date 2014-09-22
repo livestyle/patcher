@@ -87,5 +87,7 @@ define(function(require, exports, module) {
 		if (client.connected) {
 			identify();
 		}
+
+		return worker;
 	};
 });
