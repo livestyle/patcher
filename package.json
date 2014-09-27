@@ -19,7 +19,7 @@
   "license": "MIT",
   "dependencies": {
     "livestyle-client": "git+https://github.com/livestyle/client.git",
-    "livestyle": "git+ssh://git@github.com/sergeche/livestyle-core.git"
+    "emmet-livestyle": "^0.9.1"
   },
   "devDependencies": {
     "mocha": "^1.21.4"

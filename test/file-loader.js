@@ -1,6 +1,6 @@
 global.Worker = require('./shim/worker');
 var assert = require('assert');
-var livestyle = require('livestyle');
+var livestyle = require('emmet-livestyle');
 var patcher = require('../');
 var fileLoader = require('../lib/file-loader');
 var Client = require('./shim/client');
