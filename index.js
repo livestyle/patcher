@@ -88,6 +88,6 @@ define(function(require, exports, module) {
 			identify();
 		}
 
-		return worker;
+		return queue;
 	};
 });

@@ -104,4 +104,30 @@ describe('Command Queue', function() {
 			done();
 		}, 30);
 	});
+
+	it('command events', function() {
+		var worker = new Worker();
+		worker.on('postMessage', function(payload) {
+			this.emit('message', {data: {
+				commandId: payload.commandId,
+				status: 'ok',
+				data: payload.name
+			}});
+		});
+
+		var create = [], reply = [];
+
+		queue(worker)
+			.on('command-create', function(payload) {
+				create.push(payload.name);
+			})
+			.on('command-reply', function(payload) {
+				reply.push(payload.data);
+			})
+			.add('test1')
+			.add('test2');
+
+		assert.deepEqual(create, ['test1', 'test2']);
+		assert.deepEqual(reply, ['test1', 'test2']);
+	});
 });
