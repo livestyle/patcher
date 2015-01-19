@@ -11,7 +11,7 @@ function Worker(filename) {
 	if (filename) {
 		var self = this;
 		this._module = require(path.join(__dirname, '../../', filename));
-		this._module.shimPostMessage(function(payload) {
+		this._module(function(payload) {
 			self.emit('message', {data: payload});
 		});
 	}
@@ -32,9 +32,7 @@ Worker.prototype.removeEventListener = function(name, callback) {
 
 Worker.prototype.postMessage = function(data) {
 	Worker.emitter.emit('message', data, this);
-	if (this._module) {
-		this._module(data);
-	}
+	this._module && this._module.postMessage(data);
 	this.emit('postMessage', data);
 };
 
