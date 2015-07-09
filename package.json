@@ -18,10 +18,10 @@
   "author": "Sergey Chikuyonok <serge.che@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "emmet-livestyle": "^0.9.18"
+    "emmet-livestyle": "^0.9.20"
   },
   "devDependencies": {
     "livestyle-client": "git+https://github.com/livestyle/client.git",
-    "mocha": "^1.21.4"
+    "mocha": "^2.2.5"
   }
 }
