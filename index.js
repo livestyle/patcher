@@ -61,7 +61,18 @@ module.exports = function(client, options) {
 		client.on(event, function(data) {
 			queue.add(event, data, function(status, responseData, command) {
 				if (status !== 'ok') {
-					return client.send('error', responseData);
+					var err = {
+						message: responseData,
+						origin: {
+							name: command.name
+						}
+					};
+
+					if (command.data && command.data.uri) {
+						err.origin.uri = command.data.uri;
+					}
+
+					return client.send('error', err);
 				}
 				response[event](responseData, command);
 			});

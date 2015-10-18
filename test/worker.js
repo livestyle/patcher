@@ -113,4 +113,28 @@ describe('Worker', function() {
 		assert.equal(patched.content, '@v:1; a{foo:@v + 1}');
 		assert.deepEqual(patched.ranges, [[12, 14, '@v + 1']]);
 	});
+
+	it('error response', function() {
+		// check that error response contains data about command
+		// that caused this error
+		var err = null;
+		var client = new Client();
+		patcher(client);
+		
+		client
+			.on('error', function(data) {
+				err = data;
+			})
+			.emit('calculate-diff', {
+				uri:      'demo.less',
+				syntax:   'less',
+				previous: '@v:1; a{foo:@v;b:"}',
+				content:  '@v:1; a{foo:@v+1}'
+			});
+
+		assert(err);
+		assert(err.origin);
+		assert.equal(err.origin.name, 'calculate-diff');
+		assert.equal(err.origin.uri, 'demo.less');
+	});
 });
