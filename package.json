@@ -4,7 +4,7 @@
   "description": "A LiveStyle client able to perform source diff and patch",
   "main": "index.js",
   "scripts": {
-    "test": "./node_modules/.bin/mocha --reporter spec"
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
@@ -18,10 +18,10 @@
   "author": "Sergey Chikuyonok <serge.che@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "emmet-livestyle": "^0.9.20"
+    "emmet-livestyle": "^0.9.30"
   },
   "devDependencies": {
-    "livestyle-client": "git+https://github.com/livestyle/client.git",
+    "livestyle-client": "github:livestyle/client",
     "mocha": "^2.2.5"
   }
 }

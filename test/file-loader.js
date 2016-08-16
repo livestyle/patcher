@@ -45,7 +45,7 @@ describe('File Loader', function() {
 
 	it('initial & diff', function(done) {
 		var client = createClient();
-		
+
 		client.on('diff', function(data) {
 			// diff should be empty since both states resolve
 			// to the same CSS
@@ -68,7 +68,7 @@ describe('File Loader', function() {
 	it('patch', function(done) {
 		var patch = {
 			"path": [["a",1]],
-			"action": "update", 
+			"action": "update",
 			"update":[{"name":"foo","value":"14"}],
 			"remove":[]
 		};
@@ -93,14 +93,14 @@ describe('File Loader', function() {
 
 		client
 			.on('diff', function(data) {
-				assert.deepEqual(data.patches[0].update, [{name: 'foo', value: '1@v2'}])
+				assert.deepEqual(data.patches[0].update, [{name: 'foo', value: '2'}])
 				done();
 			})
 			.emit('calculate-diff', {
 				uri:      '/demo.less',
 				syntax:   'less',
 				previous: '@v:1; a{foo:@v}',
-				content:  '@import dep; @v:1; a{foo:@v+@v2}'
+				content:  '@import dep; @v:1; a{foo:@v+@v}'
 			});
 	});
 });
