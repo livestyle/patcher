@@ -1,6 +1,6 @@
 {
   "name": "livestyle-patcher",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A LiveStyle client able to perform source diff and patch",
   "main": "index.js",
   "scripts": {
